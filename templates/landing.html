@@ -24,7 +24,7 @@
         </p>
         <div class="hero-actions">
             <a href="{{ url_for('register') }}" class="btn-primary">Create free account</a>
-            <a href="#how-it-works" class="btn-secondary">See how it works</a>
+            <button type="button" class="btn-secondary" id="open-modal-btn">See how it works</button>
         </div>
     </div>
     <div class="hero-visual">
@@ -103,4 +103,70 @@
     </div>
 </section>
 
+<!-- How It Works Modal -->
+<div id="how-it-works-modal" class="modal-overlay">
+    <div class="modal-content">
+        <button type="button" class="modal-close-btn" id="modal-close-btn" aria-label="Close modal">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        <div class="modal-video-container" id="modal-iframe-container">
+            <!-- YouTube iframe injected here when modal opens -->
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+(function() {
+    const openBtn = document.getElementById('open-modal-btn');
+    const modal = document.getElementById('how-it-works-modal');
+    const closeBtn = document.getElementById('modal-close-btn');
+    const iframeContainer = document.getElementById('modal-iframe-container');
+
+    let iframe = null;
+
+    function openModal() {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        // Create iframe with autoplay when modal opens
+        iframe = document.createElement('iframe');
+        iframe.src = 'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0';
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+        iframe.setAttribute('allowfullscreen', 'true');
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframeContainer.appendChild(iframe);
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        // Remove iframe to stop video playback
+        if (iframe) {
+            iframeContainer.removeChild(iframe);
+            iframe = null;
+        }
+    }
+
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+            closeModal();
+        }
+    });
+})();
+</script>
+{% endblock %}
 {% endblock %}

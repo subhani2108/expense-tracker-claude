@@ -217,6 +217,66 @@
 .category-bar.travel { background: #4a77d4; }
 .category-bar.bills { background: #7b57c7; }
 
+/* ------------------------------------------------------------------ */
+/* Modal - How It Works                                                 */
+/* ------------------------------------------------------------------ */
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.modal-content {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background 0.2s;
+}
+
+.modal-close-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.modal-close-btn svg {
+    stroke: #ffffff;
+    width: 20px;
+    height: 20px;
+}
+
+.modal-video-container {
+    width: 100%;
+    height: 100%;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
     .hero {
@@ -237,5 +297,13 @@
 
     .hero-visual {
         display: none;
+    }
+
+    .modal-overlay {
+        padding: 1rem;
+    }
+
+    .modal-content {
+        max-width: 100%;
     }
 }
