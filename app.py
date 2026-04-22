@@ -1,7 +1,9 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, session, flash
+from werkzeug.security import generate_password_hash
 from database.db import get_db, init_db, seed_db
 
 app = Flask(__name__)
+app.secret_key = "spendly-secret-key-2026"
 
 
 # ------------------------------------------------------------------ #
@@ -16,6 +18,37 @@ def landing():
 @app.route("/register")
 def register():
     return render_template("register.html")
+
+
+@app.route("/register", methods=["POST"])
+def register_post():
+    name = request.form.get("name", "").strip()
+    email = request.form.get("email", "").strip().lower()
+    password = request.form.get("password", "")
+
+    if not name or not email or not password:
+        flash("All fields are required.", "error")
+        return render_template("register.html")
+
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+    if cursor.fetchone() is not None:
+        conn.close()
+        flash("Email already registered.", "error")
+        return render_template("register.html")
+
+    password_hash = generate_password_hash(password)
+    cursor.execute(
+        "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+        (name, email, password_hash)
+    )
+    user_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+
+    session["user_id"] = user_id
+    return redirect("/profile")
 
 
 @app.route("/login")
