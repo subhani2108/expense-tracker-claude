@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Profile — Spendly{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: var(--max-width); margin: 0 auto; padding: 2rem 1.5rem;">
+
+    {# User Info Card #}
+    <div class="auth-card" style="margin-bottom: 1.5rem;">
+        <div class="profile-header">
+            <div class="avatar">{{ user.name[:2] }}</div>
+            <div class="user-info">
+                <h1>{{ user.name }}</h1>
+                <p>{{ user.email }}</p>
+                <p class="member-since">Member since {{ user.member_since }}</p>
+            </div>
+        </div>
+    </div>
+
+    {# Summary Stats Row #}
+    <div class="stat-grid" style="margin-bottom: 2rem;">
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.total_spent }}</div>
+            <div class="stat-label">Total Spent</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.transaction_count }}</div>
+            <div class="stat-label">Transactions</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.top_category }}</div>
+            <div class="stat-label">Top Category</div>
+        </div>
+    </div>
+
+    {# Transaction History #}
+    <div style="margin-bottom: 2rem;">
+        <div class="section-title">Recent Transactions</div>
+        <div class="transaction-list">
+            {% for tx in transactions %}
+            <div class="transaction-row">
+                <span class="tx-date">{{ tx.date }}</span>
+                <span class="tx-desc">{{ tx.description }}</span>
+                <span class="badge badge-{{ tx.category|lower }}">{{ tx.category }}</span>
+                <span class="tx-amount">{{ tx.amount }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# Category Breakdown #}
+    <div>
+        <div class="section-title">Spending by Category</div>
+        <div class="auth-card">
+            <div class="category-list">
+                {% for cat in categories %}
+                <div class="category-row">
+                    <span class="cat-name">{{ cat.name }}</span>
+                    <div class="cat-bar-wrap">
+                        <div class="category-bar-track">
+                            <div class="category-bar {{ cat.class }}" style="width: {{ cat.percent }}%"></div>
+                        </div>
+                    </div>
+                    <span class="cat-amount">{{ cat.amount }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

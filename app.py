@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, flash
+from flask import Flask, render_template, request, redirect, session, flash, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from database.db import get_db, init_db, seed_db
 
@@ -12,6 +12,8 @@ app.secret_key = "spendly-secret-key-2026"
 
 @app.route("/")
 def landing():
+    if session.get("user_id"):
+        return redirect("/profile")
     return render_template("landing.html")
 
 
@@ -50,7 +52,7 @@ def register_post():
     conn.close()
 
     session["user_id"] = user_id
-    return redirect("/")
+    return redirect("/profile")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -82,7 +84,7 @@ def login():
         return render_template("login.html")
 
     session["user_id"] = row["id"]
-    return redirect("/")
+    return redirect("/profile")
 
 
 @app.route("/terms")
@@ -107,7 +109,26 @@ def logout():
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    user = {"name": "Priya Sharma", "email": "priya@example.com", "member_since": "January 2025"}
+    stats = {"total_spent": "₹48,500", "transaction_count": "24", "top_category": "Food"}
+    transactions = [
+        {"date": "26 Apr 2026", "description": "Swiggy order", "category": "Food", "amount": "₹320"},
+        {"date": "25 Apr 2026", "description": "Metro pass", "category": "Travel", "amount": "₹150"},
+        {"date": "24 Apr 2026", "description": "Electricity bill", "category": "Bills", "amount": "₹2,400"},
+        {"date": "22 Apr 2026", "description": "Amazon haul", "category": "Shopping", "amount": "₹1,850"},
+        {"date": "20 Apr 2026", "description": "Monzo coffee", "category": "Food", "amount": "₹180"},
+    ]
+    categories = [
+        {"name": "Food", "amount": "₹19,400", "percent": 40, "class": "food"},
+        {"name": "Travel", "amount": "₹12,125", "percent": 25, "class": "travel"},
+        {"name": "Bills", "amount": "₹9,700", "percent": 20, "class": "bills"},
+        {"name": "Shopping", "amount": "₹7,275", "percent": 15, "class": "shopping"},
+    ]
+
+    return render_template("profile.html", user=user, stats=stats, transactions=transactions, categories=categories)
 
 
 @app.route("/expenses/add")
