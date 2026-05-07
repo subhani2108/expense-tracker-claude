@@ -1,0 +1,77 @@
+.filter-bar {
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.presets {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.preset-btn {
+    text-decoration: none;
+    color: var(--text-muted);
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.preset-btn:hover {
+    color: var(--text-main);
+    background: var(--bg-hover);
+}
+
+.preset-btn.active {
+    background: var(--primary-color);
+    color: var(--bg-main);
+    font-weight: 600;
+}
+
+.custom-range {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: flex-end;
+    font-size: 0.85rem;
+}
+
+.custom-range label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.custom-range input[type="date"] {
+    padding: 0.4rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-main);
+    color: var(--text-main);
+    font-family: inherit;
+}
+
+.custom-range .date-separator {
+    color: var(--text-muted);
+}
+
+.apply-btn {
+    padding: 0.4rem 1rem;
+    cursor: pointer;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    min-width: 80px;
+}
