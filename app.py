@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, session, flash, url
 from werkzeug.security import generate_password_hash, check_password_hash
 from database.db import get_db, init_db, seed_db
 from database.queries import get_user_by_id, get_summary_stats, get_recent_transactions, get_category_breakdown
+from datetime import datetime, date, timedelta
+from dateutil.relativedelta import relativedelta
 
 app = Flask(__name__)
 app.secret_key = "spendly-secret-key-2026"
@@ -108,6 +110,48 @@ def logout():
     return redirect("/login")
 
 
+def get_profile_date_filters(args):
+    date_from = args.get("date_from")
+    date_to = args.get("date_to")
+
+    valid_from = None
+    valid_to = None
+
+    if date_from:
+        try:
+            datetime.strptime(date_from, "%Y-%m-%d")
+            valid_from = date_from
+        except ValueError:
+            pass
+
+    if date_to:
+        try:
+            datetime.strptime(date_to, "%Y-%m-%d")
+            valid_to = date_to
+        except ValueError:
+            pass
+
+    if valid_from and valid_to and valid_from > valid_to:
+        flash("Start date must be before end date.", "error")
+        valid_from = None
+        valid_to = None
+
+    today = date.today()
+    today_str = today.strftime("%Y-%m-%d")
+    this_month_start = today.replace(day=1).strftime("%Y-%m-%d")
+    three_months_ago = (today - relativedelta(months=3)).strftime("%Y-%m-%d")
+    six_months_ago = (today - relativedelta(months=6)).strftime("%Y-%m-%d")
+
+    presets = {
+        "this_month": (this_month_start, today_str),
+        "three_months": (three_months_ago, today_str),
+        "six_months": (six_months_ago, today_str),
+        "all_time": (None, None)
+    }
+
+    return valid_from, valid_to, presets
+
+
 @app.route("/profile")
 def profile():
     if not session.get("user_id"):
@@ -118,11 +162,22 @@ def profile():
         session.pop("user_id", None)
         return redirect(url_for("login"))
 
-    stats = get_summary_stats(session["user_id"])
-    transactions = get_recent_transactions(session["user_id"])
-    categories = get_category_breakdown(session["user_id"])
+    valid_from, valid_to, presets = get_profile_date_filters(request.args)
 
-    return render_template("profile.html", user=user, stats=stats, transactions=transactions, categories=categories)
+    stats = get_summary_stats(session["user_id"], date_from=valid_from, date_to=valid_to)
+    transactions = get_recent_transactions(session["user_id"], date_from=valid_from, date_to=valid_to)
+    categories = get_category_breakdown(session["user_id"], date_from=valid_from, date_to=valid_to)
+
+    return render_template(
+        "profile.html",
+        user=user,
+        stats=stats,
+        transactions=transactions,
+        categories=categories,
+        date_from=valid_from,
+        date_to=valid_to,
+        presets=presets
+    )
 
 
 @app.route("/expenses/add")
