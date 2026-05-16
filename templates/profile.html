@@ -59,7 +59,10 @@
 
     {# Transaction History #}
     <div style="margin-bottom: 2rem;">
-        <div class="section-title">Recent Transactions</div>
+        <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div class="section-title">Recent Transactions</div>
+            <a href="{{ url_for('add_expense') }}" class="btn-submit" style="text-decoration: none; padding: 0.5rem 1rem; font-size: 0.9rem;">+ Add Expense</a>
+        </div>
         <div class="transaction-list">
             {% for tx in transactions %}
             <div class="transaction-row">

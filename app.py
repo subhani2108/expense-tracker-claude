@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from database.db import get_db, init_db, seed_db
-from database.queries import get_user_by_id, get_summary_stats, get_recent_transactions, get_category_breakdown
+from database.queries import get_user_by_id, get_summary_stats, get_recent_transactions, get_category_breakdown, insert_expense
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
+
+EXPENSE_CATEGORIES = ["Food", "Transport", "Bills", "Health", "Entertainment", "Shopping", "Other"]
 
 app = Flask(__name__)
 app.secret_key = "spendly-secret-key-2026"
@@ -104,6 +106,13 @@ def privacy():
 # Placeholder routes — students will implement these                  #
 # ------------------------------------------------------------------ #
 
+@app.route("/analytics")
+def analytics():
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+    return render_template("analytics.html")
+
+
 @app.route("/logout")
 def logout():
     session.pop("user_id", None)
@@ -180,9 +189,53 @@ def profile():
     )
 
 
-@app.route("/expenses/add")
+@app.route("/expenses/add", methods=["GET", "POST"])
 def add_expense():
-    return "Add expense — coming in Step 7"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        amount_str = request.form.get("amount", "").strip()
+        category = request.form.get("category", "").strip()
+        date_str = request.form.get("date", "").strip()
+        description = request.form.get("description", "").strip()
+
+        error = None
+        amount = None
+
+        # Validation
+        try:
+            amount = float(amount_str)
+            if amount <= 0:
+                error = "Please enter a valid positive amount."
+        except ValueError:
+            error = "Please enter a valid positive amount."
+
+        if not error and category not in EXPENSE_CATEGORIES:
+            error = "Please select a valid category."
+
+        if not error and not date_str:
+            error = "Please select a date."
+
+        if not error:
+            try:
+                datetime.strptime(date_str, "%Y-%m-%d")
+            except ValueError:
+                error = "Invalid date format."
+
+        if error:
+            flash(error, "error")
+            return render_template("add_expense.html", categories=EXPENSE_CATEGORIES, amount=amount_str, category=category, date=date_str, description=description)
+
+        # Store None if description is empty
+        desc_value = description if description else None
+
+        insert_expense(session["user_id"], amount, category, date_str, desc_value)
+        flash("Expense added successfully!", "success")
+        return redirect(url_for("profile"))
+
+    # GET request
+    return render_template("add_expense.html", categories=EXPENSE_CATEGORIES)
 
 
 @app.route("/expenses/<int:id>/edit")
