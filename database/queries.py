@@ -128,3 +128,14 @@ def get_category_breakdown(user_id: int, date_from: str = None, date_to: str = N
         breakdown[0]["pct"] += rounding_diff
 
     return breakdown
+
+
+def insert_expense(user_id: int, amount: float, category: str, date: str, description: str = None):
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO expenses (user_id, amount, category, date, description) VALUES (?, ?, ?, ?, ?)",
+            (user_id, amount, category, date, description)
+        )
+        conn.commit()
+
